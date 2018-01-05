@@ -1,0 +1,24 @@
+https://www.letscontrolit.com/wiki/index.php/SleepMode#Getting_out_of_deep_sleep
+
+If all else fails, just do a factory reset. You will lose all your settings!
+The reset is done by connect the RX and TX pin together while you restart your ESP.
+
+https://github.com/wemos/D1_mini_Examples/blob/master/examples/02.Special/DeepSleep/Blink/Blink.ino
+
+https://www.mjt.me.uk/posts/esp8266-gpio-deep-sleep-and-reset/
+
+https://github.com/esp8266/Arduino/issues/1488
+
+https://www.open-homeautomation.com/tag/batteries/
+
+https://www.arduino.cc/reference/en/language/functions/analog-io/analogwrite/
+
+https://www.mjt.me.uk/posts/esp8266-gpio-deep-sleep-and-reset/
+
+// WiFi.mode(WIFI_OFF);
+// WiFi.forceSleepBegin();
+// delay(1); //Needed, at least in my tests WiFi doesn't power off without this for some reason
+
+See below for PROGMEM stuff
+https://gist.github.com/sticilface/e54016485fcccd10950e93ddcd4461a3
+static const char xyz[] PROGMEM = "This is a string stored in flash";
