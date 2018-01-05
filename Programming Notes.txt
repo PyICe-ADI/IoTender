@@ -1,3 +1,5 @@
+This repo:  https://github.com/Xenomorphxx121/IoTender/trunk
+
 https://www.letscontrolit.com/wiki/index.php/SleepMode#Getting_out_of_deep_sleep
 
 If all else fails, just do a factory reset. You will lose all your settings!
