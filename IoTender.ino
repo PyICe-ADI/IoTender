@@ -14,12 +14,12 @@ extern "C"
 }
 #define STOP true
 #define RESTART                                     // Send empty argument rather than 0?
-#define EQUALIZE D5
-#define BULK D6
-#define ABSORB D7
-#define FLOAT D0
 #define SCL D1
 #define SDA D2
+#define BULK D5
+#define EQUALIZE D6
+#define FLOAT D7
+#define ABSORB D8
 #define DEEP_SLEEP_SECONDS *1e6                     // Deep Sleep Timer in us, maximum 1 hour 11 minutes 34.967296 seconds (32 bits)
 #define TIMER_SECONDS *1e3                          // Other Timers in ms
 #define TIMER_MINUTES TIMER_SECONDS * 60
@@ -29,7 +29,7 @@ extern "C"
 
 LTC4162 ltc4162;
 uint16_t data, cell_count;
-bool solar_panel, solar_panel_timeout, input_power_detected;
+bool solar_panel, solar_panel_timeout, input_power_detected, thermistor_present;
 os_timer_t solar_panel_timer;
 char vin[10], vout[10], vbat[10], iin[10], ibat[10], die_temp[10], bsr[10], thermistor_voltage[10], tabsorb_timer[15], tequalize_timer[15], temp[15];
 std::string value, html, charger_state;
@@ -181,6 +181,12 @@ void loop()
     
     LTC4162_read_register(ltc4162, LTC4162_THERMISTOR_VOLTAGE, &data);
     dtostrf(LTC4162_NTCS0402E3103FLT_I2R(data), 5, 3, thermistor_voltage);
+
+    thermistor_present = LTC4162_NTCS0402E3103FLT_I2R(data) > -45; // Missing thermistor
+    if (thermistor_present)
+        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
+    else
+        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
     
     LTC4162_read_register(ltc4162, LTC4162_BSR, &data);
     dtostrf(LTC4162_BSR_FORMAT_SLA_U2R(data) * cell_count / 2 * 1000, 5, 3, bsr);
@@ -339,7 +345,8 @@ void loop()
     add_table_row("Battery Current", value.assign(ibat) + "A", true);
     add_table_row("Input Current", value.assign(iin) + "A", true);
     add_table_row("Die Temperature", value.assign(die_temp) + "&deg;C", true);
-    add_table_row("Thermistor Temp", value.assign(thermistor_voltage) + "&deg;C", true);
+    if (thermistor_present)
+        add_table_row("Thermistor Temp", value.assign(thermistor_voltage) + "&deg;C", true);
     add_table_row("Battery Impedance", value.assign(bsr) + "m&Omega;", true);
     add_table_row("Charger State", charger_state, true);
     LTC4162_read_register(ltc4162, LTC4162_CHARGE_STATUS, &data);
