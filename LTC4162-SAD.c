@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision$
-$Date$
+$Revision: 1757 $
+$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-02
+Generated on: 2018-01-18
 */
 
 
@@ -68,11 +68,11 @@ Generated on: 2018-01-02
 
 /*! @file
  *  @ingroup LTC4162-SAD
- *  @brief LTC4162-SAD lightweight, hardware ambiguous, embeddable C Communication
+ *  @brief LTC4162-SAD lightweight, hardware agnostic, embeddable C Communication
  *  Library.
  *
  * Communication  is  bit-field based as well as whole-register based. This library
- * automatically masks and right-justifies bit fields to  ease programmer workload.
+ * automatically masks and right-justifies bit fields.
  *
  * This C library provides a header file with the complete definitions of registers
  * and  bit  fields  within  those  registers, and routines to read and write those
@@ -87,7 +87,7 @@ Generated on: 2018-01-02
  * readily  adapted  to  common  microcontrollers  with  minimal  memory  impact on
  * embedded systems.
  *
- * A higher level hardware ambiguous Python communication library is also available.
+ * A higher level hardware agnostic Python communication library is also available.
  *
  * Please   visit   http://www.linear.com/product/LTC4162#code  or  contact  the
  * factory at 408-432-1900 or www.linear.com for further information.
@@ -95,47 +95,11 @@ Generated on: 2018-01-02
 
 #include "LTC4162-SAD.h"
 
-#ifndef LTC4162_USE_MALLOC
-int LTC4162_instances = 0;
-LTC4162_chip_cfg_t LTC4162_chip_array[MAX_NUM_LTC4162_INSTANCES];
-#endif
-
-
-//private function
-LTC4162 LTC4162_alloc(void)
-{
-  //! this function "allocates" a LTC4162_chip structure.
-  //! It may or may not use malloc.
-#ifdef LTC4162_USE_MALLOC
-  return malloc(sizeof(LTC4162_chip_cfg_t));
-#else
-  if (LTC4162_instances < MAX_NUM_LTC4162_INSTANCES)
-  {
-    return &LTC4162_chip_array[LTC4162_instances++];
-  }
-  else
-  {
-    return 0;
-  }
-#endif
-}
-
-LTC4162 LTC4162_init(LTC4162_chip_cfg_t *cfg)
-{
-  LTC4162_chip_cfg_t *chip = LTC4162_alloc();
-  if (chip == NULL) return NULL;
-  chip->address = cfg->address;
-  chip->write_register = cfg->write_register;
-  chip->read_register = cfg->read_register;
-  chip->port_configuration = cfg->port_configuration;
-  return (LTC4162) chip;
-}
-
 static inline uint8_t get_size(uint16_t registerinfo)
 {
   return ((registerinfo >> 8) & 0x0F) + 1;
 }
-static inline uint8_t get_subaddr(uint16_t registerinfo)
+static inline uint8_t get_command_code(uint16_t registerinfo)
 {
   return (registerinfo) & 0xFF;
 }
@@ -145,43 +109,71 @@ static inline uint8_t get_offset(uint16_t registerinfo)
 }
 static inline uint16_t get_mask(uint16_t registerinfo)
 {
-  uint16_t mask = 1 << get_offset(registerinfo);
   uint8_t size = get_size(registerinfo);
-  uint8_t i;
-  for (i=0; i<size-1; i++)
+  if (size == LTC4162_WORD_SIZE)
   {
-    mask |= mask << 1;
+    return UINT16_MAX;
   }
-  return mask;
+  return (uint16_t)(((1 << size) - 1) << get_offset(registerinfo));
 }
 
-int LTC4162_write_register(LTC4162 chip_handle, uint16_t registerinfo, uint16_t data)
+int LTC4162_write_register(LTC4162_chip_cfg_t *chip, uint16_t registerinfo, uint16_t data)
 {
-  LTC4162_chip_cfg_t *chip = (LTC4162_chip_cfg_t *) chip_handle;
-  int failure;
-  uint8_t command_code = get_subaddr(registerinfo);
-  if (get_size(registerinfo) != 16)
+  int ret_val;
+  uint8_t command_code = get_command_code(registerinfo);
+  /* It may be a good idea to acquire or assert some kind of
+     exclusive lock on the i2c hardware here. How to do this
+     is VERY dependent on your specific hardware.
+
+     Linux, for example, allows multiple programs
+     to open and read or write the i2c device at the same time.
+     This may cause surprising behavior like "lost writes"
+     when multiple processes concurrently attempt
+     read-modify-writes of distinct bitfields
+     residing in the same register.
+
+     In Linux, one way to avoid this is to use flock(2), which
+     blocks until an exclusive lock is acquired.
+
+     if (flock(pc->file_descriptor, LOCK_EX) < 0)
+     {
+       perror("Error acquiring exclusive advisory file lock");
+       ret_val = errno;
+       goto RETURN;
+     }
+  */
+  if (get_size(registerinfo) != LTC4162_WORD_SIZE)
   {
     uint8_t offset = get_offset(registerinfo);
     uint16_t mask = get_mask(registerinfo);
     uint16_t read_data;
-    failure = chip->read_register(chip->address,command_code,&read_data,chip->port_configuration);
-    if (failure) return failure;
+    ret_val = chip->read_register(chip->address,command_code,&read_data,chip->port_configuration);
+    if (ret_val) goto RETURN;
+    assert(data < 1 << get_size(registerinfo)); // Disable runtime overflow checking by defining NDEBUG macro or setting -DNDEBUG CFLAGS option.
     data = (read_data & ~mask) | (data << offset);
   }
-  return chip->write_register(chip->address,command_code,data,chip->port_configuration);
+  ret_val = chip->write_register(chip->address,command_code,data,chip->port_configuration);
+  RETURN:
+  /* If you added code to lock the i2c hardware at the beginning
+     of this function, this is a good place to release that lock.
+
+     In the case of using flock(2) in Linux, we'd do either:
+
+       flock(pc->file_descriptor, LOCK_UN); // Completely unlock i2c device.
+
+       // or
+
+       flock(pc->file_descriptor, LOCK_SH); // Revert i2c lock to Shared.
+
+  */
+  return ret_val;
 }
 
-int LTC4162_read_register(LTC4162 chip_handle, uint16_t registerinfo, uint16_t *data)
+int LTC4162_read_register(LTC4162_chip_cfg_t *chip, uint16_t registerinfo, uint16_t *data)
 {
-  LTC4162_chip_cfg_t *chip = (LTC4162_chip_cfg_t *) chip_handle;
-  int result;
-  uint8_t command_code = get_subaddr(registerinfo);
-  uint8_t offset = get_offset(registerinfo);
-  result = chip->read_register(chip->address,command_code,data,chip->port_configuration);
-  if (get_size(registerinfo) == 16) return result;
-  uint16_t mask = get_mask(registerinfo);
-  *data &= mask;
-  *data = *data >> offset;
-  return result;
+  int failure = chip->read_register(chip->address,get_command_code(registerinfo),data,chip->port_configuration);
+  if (get_size(registerinfo) == LTC4162_WORD_SIZE) return failure;
+  *data &= get_mask(registerinfo);
+  *data = *data >> get_offset(registerinfo);
+  return failure;
 }

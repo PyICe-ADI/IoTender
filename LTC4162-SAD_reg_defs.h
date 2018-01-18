@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision$
-$Date$
+$Revision: 1757 $
+$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-02
+Generated on: 2018-01-18
 */
 
 /*! @file
@@ -77,14 +77,14 @@ Generated on: 2018-01-02
  *  as well as the three fields stored in a single 16-bit word for use with the access
  *  functions provided by LTC4162-SAD.c and LTC4162-SAD.h.
  *
- *  Additionally, each bit field contains an _UNPACK macro to decode multiple individual
+ *  Additionally, each bit field contains a _DECODE macro to unpack multiple individual
  *  bit fields from a single copy of complete register data.
  *
- *  In the case that the bit field contents represent an enumeration, _PRESET
+ *  In the case that the bit field contents represent an enumeration, _ENUM
  *  definitions exist to translate from human readable format to the encoded value.
  *
  *  In the case that the bit field contents represent scalar data,
- *  macros exist in {}_formats.h to translate from real units to integer values and back again.
+ *  macros exist in LTC4162_formats.h to translate from real units to integer values and back again.
  *  Real to integer conversions of literals should generally be optimized away at compile time
  *  without impact on execution speed or code size.
  *
@@ -140,7 +140,7 @@ Generated on: 2018-01-02
 #define LTC4162_VBAT_LO_ALERT_LIMIT_SIZE 16
 #define LTC4162_VBAT_LO_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VBAT_LO_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VBAT_LO_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VBAT_LO_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VBAT_LO_ALERT_LIMIT (LTC4162_VBAT_LO_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VBAT_LO_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VBAT_LO_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -181,7 +181,7 @@ Generated on: 2018-01-02
 #define LTC4162_VBAT_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_VBAT_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VBAT_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VBAT_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VBAT_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VBAT_HI_ALERT_LIMIT (LTC4162_VBAT_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VBAT_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VBAT_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -222,7 +222,7 @@ Generated on: 2018-01-02
 #define LTC4162_VIN_LO_ALERT_LIMIT_SIZE 16
 #define LTC4162_VIN_LO_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VIN_LO_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VIN_LO_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VIN_LO_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VIN_LO_ALERT_LIMIT (LTC4162_VIN_LO_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VIN_LO_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VIN_LO_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -263,7 +263,7 @@ Generated on: 2018-01-02
 #define LTC4162_VIN_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_VIN_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VIN_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VIN_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VIN_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VIN_HI_ALERT_LIMIT (LTC4162_VIN_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VIN_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VIN_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -304,7 +304,7 @@ Generated on: 2018-01-02
 #define LTC4162_VOUT_LO_ALERT_LIMIT_SIZE 16
 #define LTC4162_VOUT_LO_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VOUT_LO_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VOUT_LO_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VOUT_LO_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VOUT_LO_ALERT_LIMIT (LTC4162_VOUT_LO_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VOUT_LO_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VOUT_LO_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -345,7 +345,7 @@ Generated on: 2018-01-02
 #define LTC4162_VOUT_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_VOUT_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_VOUT_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_VOUT_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_VOUT_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_VOUT_HI_ALERT_LIMIT (LTC4162_VOUT_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_VOUT_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_VOUT_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -386,7 +386,7 @@ Generated on: 2018-01-02
 #define LTC4162_IIN_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_IIN_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_IIN_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_IIN_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_IIN_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_IIN_HI_ALERT_LIMIT (LTC4162_IIN_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_IIN_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_IIN_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -427,7 +427,7 @@ Generated on: 2018-01-02
 #define LTC4162_IBAT_LO_ALERT_LIMIT_SIZE 16
 #define LTC4162_IBAT_LO_ALERT_LIMIT_OFFSET 0
 #define LTC4162_IBAT_LO_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_IBAT_LO_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_IBAT_LO_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_IBAT_LO_ALERT_LIMIT (LTC4162_IBAT_LO_ALERT_LIMIT_OFFSET << 12 | (LTC4162_IBAT_LO_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_IBAT_LO_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -468,7 +468,7 @@ Generated on: 2018-01-02
 #define LTC4162_DIE_TEMP_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_DIE_TEMP_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_DIE_TEMP_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_DIE_TEMP_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_DIE_TEMP_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_DIE_TEMP_HI_ALERT_LIMIT (LTC4162_DIE_TEMP_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_DIE_TEMP_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_DIE_TEMP_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -509,7 +509,7 @@ Generated on: 2018-01-02
 #define LTC4162_BSR_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_BSR_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_BSR_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_BSR_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_BSR_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_BSR_HI_ALERT_LIMIT (LTC4162_BSR_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_BSR_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_BSR_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -550,7 +550,7 @@ Generated on: 2018-01-02
 #define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_SIZE 16
 #define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_OFFSET 0
 #define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT (LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_OFFSET << 12 | (LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_THERMISTOR_VOLTAGE_HI_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -591,7 +591,7 @@ Generated on: 2018-01-02
 #define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_SIZE 16
 #define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_OFFSET 0
 #define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_MASK 0xFFFF
-#define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_DECODE(register_data) register_data
+#define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_DECODE(register_data) (register_data)
 #define LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT (LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_OFFSET << 12 | (LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_SIZE - 1) << 8 | LTC4162_THERMISTOR_VOLTAGE_LO_ALERT_LIMIT_SUBADDR)
 //!@}
 
@@ -1330,7 +1330,7 @@ Generated on: 2018-01-02
 #define LTC4162_THERMAL_REG_START_TEMP_SIZE 16
 #define LTC4162_THERMAL_REG_START_TEMP_OFFSET 0
 #define LTC4162_THERMAL_REG_START_TEMP_MASK 0xFFFF
-#define LTC4162_THERMAL_REG_START_TEMP_DECODE(register_data) register_data
+#define LTC4162_THERMAL_REG_START_TEMP_DECODE(register_data) (register_data)
 #define LTC4162_THERMAL_REG_START_TEMP (LTC4162_THERMAL_REG_START_TEMP_OFFSET << 12 | (LTC4162_THERMAL_REG_START_TEMP_SIZE - 1) << 8 | LTC4162_THERMAL_REG_START_TEMP_SUBADDR)
 //!@}
 
@@ -1371,7 +1371,7 @@ Generated on: 2018-01-02
 #define LTC4162_THERMAL_REG_END_TEMP_SIZE 16
 #define LTC4162_THERMAL_REG_END_TEMP_OFFSET 0
 #define LTC4162_THERMAL_REG_END_TEMP_MASK 0xFFFF
-#define LTC4162_THERMAL_REG_END_TEMP_DECODE(register_data) register_data
+#define LTC4162_THERMAL_REG_END_TEMP_DECODE(register_data) (register_data)
 #define LTC4162_THERMAL_REG_END_TEMP (LTC4162_THERMAL_REG_END_TEMP_OFFSET << 12 | (LTC4162_THERMAL_REG_END_TEMP_SIZE - 1) << 8 | LTC4162_THERMAL_REG_END_TEMP_SUBADDR)
 //!@}
 
@@ -1463,8 +1463,8 @@ Generated on: 2018-01-02
 #define LTC4162_TELEMETRY_SPEED_MASK 0x0008
 #define LTC4162_TELEMETRY_SPEED_DECODE(register_data) (((register_data) & LTC4162_TELEMETRY_SPEED_MASK) >> LTC4162_TELEMETRY_SPEED_OFFSET)
 #define LTC4162_TELEMETRY_SPEED (LTC4162_TELEMETRY_SPEED_OFFSET << 12 | (LTC4162_TELEMETRY_SPEED_SIZE - 1) << 8 | LTC4162_TELEMETRY_SPEED_SUBADDR)
-#define LTC4162_TELEMETRY_SPEED_PRESET_TEL_HIGH_SPEED 1
-#define LTC4162_TELEMETRY_SPEED_PRESET_TEL_LOW_SPEED 0
+#define LTC4162_TELEMETRY_SPEED_ENUM_TEL_HIGH_SPEED 1
+#define LTC4162_TELEMETRY_SPEED_ENUM_TEL_LOW_SPEED 0
 //!@}
 /*! @defgroup LTC4162_FORCE_TELEMETRY_ON FORCE_TELEMETRY_ON
  *  @ingroup LTC4162-SAD_register_map
@@ -1651,9 +1651,9 @@ Generated on: 2018-01-02
 #define LTC4162_ARM_SHIP_MODE_SIZE 16
 #define LTC4162_ARM_SHIP_MODE_OFFSET 0
 #define LTC4162_ARM_SHIP_MODE_MASK 0xFFFF
-#define LTC4162_ARM_SHIP_MODE_DECODE(register_data) register_data
+#define LTC4162_ARM_SHIP_MODE_DECODE(register_data) (register_data)
 #define LTC4162_ARM_SHIP_MODE (LTC4162_ARM_SHIP_MODE_OFFSET << 12 | (LTC4162_ARM_SHIP_MODE_SIZE - 1) << 8 | LTC4162_ARM_SHIP_MODE_SUBADDR)
-#define LTC4162_ARM_SHIP_MODE_PRESET_ARM 21325
+#define LTC4162_ARM_SHIP_MODE_ENUM_ARM 21325
 //!@}
 
 /*! @defgroup LTC4162_CHARGE_CURRENT_SETTING_REG CHARGE_CURRENT_SETTING_REG
@@ -1736,7 +1736,7 @@ Generated on: 2018-01-02
 #define LTC4162_VCHARGE_SETTING_MASK 0x003F
 #define LTC4162_VCHARGE_SETTING_DECODE(register_data) (((register_data) & LTC4162_VCHARGE_SETTING_MASK) >> LTC4162_VCHARGE_SETTING_OFFSET)
 #define LTC4162_VCHARGE_SETTING (LTC4162_VCHARGE_SETTING_OFFSET << 12 | (LTC4162_VCHARGE_SETTING_SIZE - 1) << 8 | LTC4162_VCHARGE_SETTING_SUBADDR)
-#define LTC4162_VCHARGE_SETTING_PRESET_VCHARGE_SLA_DEFAULT 21
+#define LTC4162_VCHARGE_SETTING_ENUM_VCHARGE_SLA_DEFAULT 21
 //!@}
 
 /*! @defgroup LTC4162_C_OVER_X_THRESHOLD_REG C_OVER_X_THRESHOLD_REG
@@ -1776,7 +1776,7 @@ Generated on: 2018-01-02
 #define LTC4162_C_OVER_X_THRESHOLD_SIZE 16
 #define LTC4162_C_OVER_X_THRESHOLD_OFFSET 0
 #define LTC4162_C_OVER_X_THRESHOLD_MASK 0xFFFF
-#define LTC4162_C_OVER_X_THRESHOLD_DECODE(register_data) register_data
+#define LTC4162_C_OVER_X_THRESHOLD_DECODE(register_data) (register_data)
 #define LTC4162_C_OVER_X_THRESHOLD (LTC4162_C_OVER_X_THRESHOLD_OFFSET << 12 | (LTC4162_C_OVER_X_THRESHOLD_SIZE - 1) << 8 | LTC4162_C_OVER_X_THRESHOLD_SUBADDR)
 //!@}
 
@@ -1859,8 +1859,8 @@ Generated on: 2018-01-02
 #define LTC4162_VABSORB_DELTA_MASK 0x003F
 #define LTC4162_VABSORB_DELTA_DECODE(register_data) (((register_data) & LTC4162_VABSORB_DELTA_MASK) >> LTC4162_VABSORB_DELTA_OFFSET)
 #define LTC4162_VABSORB_DELTA (LTC4162_VABSORB_DELTA_OFFSET << 12 | (LTC4162_VABSORB_DELTA_SIZE - 1) << 8 | LTC4162_VABSORB_DELTA_SUBADDR)
-#define LTC4162_VABSORB_DELTA_PRESET_VABSORB_SLA_DEFAULT 21
-#define LTC4162_VABSORB_DELTA_PRESET_VABSORB_DISABLE 0
+#define LTC4162_VABSORB_DELTA_ENUM_VABSORB_SLA_DEFAULT 21
+#define LTC4162_VABSORB_DELTA_ENUM_VABSORB_DISABLE 0
 //!@}
 
 /*! @defgroup LTC4162_MAX_ABSORB_TIME_REG MAX_ABSORB_TIME_REG
@@ -1899,13 +1899,13 @@ Generated on: 2018-01-02
 #define LTC4162_MAX_ABSORB_TIME_SIZE 16
 #define LTC4162_MAX_ABSORB_TIME_OFFSET 0
 #define LTC4162_MAX_ABSORB_TIME_MASK 0xFFFF
-#define LTC4162_MAX_ABSORB_TIME_DECODE(register_data) register_data
+#define LTC4162_MAX_ABSORB_TIME_DECODE(register_data) (register_data)
 #define LTC4162_MAX_ABSORB_TIME (LTC4162_MAX_ABSORB_TIME_OFFSET << 12 | (LTC4162_MAX_ABSORB_TIME_SIZE - 1) << 8 | LTC4162_MAX_ABSORB_TIME_SUBADDR)
-#define LTC4162_MAX_ABSORB_TIME_PRESET_ABSORB_15MINS 900
-#define LTC4162_MAX_ABSORB_TIME_PRESET_ABSORB_30MINS 1800
-#define LTC4162_MAX_ABSORB_TIME_PRESET_ABSORB_1HOURS 3600
-#define LTC4162_MAX_ABSORB_TIME_PRESET_ABSORB_90MINS 5400
-#define LTC4162_MAX_ABSORB_TIME_PRESET_ABSORB_2HOURS 7200
+#define LTC4162_MAX_ABSORB_TIME_ENUM_ABSORB_15MINS 900
+#define LTC4162_MAX_ABSORB_TIME_ENUM_ABSORB_30MINS 1800
+#define LTC4162_MAX_ABSORB_TIME_ENUM_ABSORB_1HOURS 3600
+#define LTC4162_MAX_ABSORB_TIME_ENUM_ABSORB_90MINS 5400
+#define LTC4162_MAX_ABSORB_TIME_ENUM_ABSORB_2HOURS 7200
 //!@}
 
 /*! @defgroup LTC4162_V_EQUALIZE_DELTA_REG V_EQUALIZE_DELTA_REG
@@ -1984,7 +1984,7 @@ Generated on: 2018-01-02
 #define LTC4162_MAX_EQUALIZE_TIME_SIZE 16
 #define LTC4162_MAX_EQUALIZE_TIME_OFFSET 0
 #define LTC4162_MAX_EQUALIZE_TIME_MASK 0xFFFF
-#define LTC4162_MAX_EQUALIZE_TIME_DECODE(register_data) register_data
+#define LTC4162_MAX_EQUALIZE_TIME_DECODE(register_data) (register_data)
 #define LTC4162_MAX_EQUALIZE_TIME (LTC4162_MAX_EQUALIZE_TIME_OFFSET << 12 | (LTC4162_MAX_EQUALIZE_TIME_SIZE - 1) << 8 | LTC4162_MAX_EQUALIZE_TIME_SUBADDR)
 //!@}
 
@@ -2024,7 +2024,7 @@ Generated on: 2018-01-02
 #define LTC4162_TABSORBTIMER_SIZE 16
 #define LTC4162_TABSORBTIMER_OFFSET 0
 #define LTC4162_TABSORBTIMER_MASK 0xFFFF
-#define LTC4162_TABSORBTIMER_DECODE(register_data) register_data
+#define LTC4162_TABSORBTIMER_DECODE(register_data) (register_data)
 #define LTC4162_TABSORBTIMER (LTC4162_TABSORBTIMER_OFFSET << 12 | (LTC4162_TABSORBTIMER_SIZE - 1) << 8 | LTC4162_TABSORBTIMER_SUBADDR)
 //!@}
 
@@ -2064,7 +2064,7 @@ Generated on: 2018-01-02
 #define LTC4162_TEQUALIZETIMER_SIZE 16
 #define LTC4162_TEQUALIZETIMER_OFFSET 0
 #define LTC4162_TEQUALIZETIMER_MASK 0xFFFF
-#define LTC4162_TEQUALIZETIMER_DECODE(register_data) register_data
+#define LTC4162_TEQUALIZETIMER_DECODE(register_data) (register_data)
 #define LTC4162_TEQUALIZETIMER (LTC4162_TEQUALIZETIMER_OFFSET << 12 | (LTC4162_TEQUALIZETIMER_SIZE - 1) << 8 | LTC4162_TEQUALIZETIMER_SUBADDR)
 //!@}
 
@@ -2106,14 +2106,14 @@ Generated on: 2018-01-02
 #define LTC4162_CHARGER_STATE_MASK 0x1FFF
 #define LTC4162_CHARGER_STATE_DECODE(register_data) (((register_data) & LTC4162_CHARGER_STATE_MASK) >> LTC4162_CHARGER_STATE_OFFSET)
 #define LTC4162_CHARGER_STATE (LTC4162_CHARGER_STATE_OFFSET << 12 | (LTC4162_CHARGER_STATE_SIZE - 1) << 8 | LTC4162_CHARGER_STATE_SUBADDR)
-#define LTC4162_CHARGER_STATE_PRESET_BAT_DETECT_FAILED_FAULT 4096 //!<Indicates that the battery charger is not charging due to an inability to source power during the battery detection test because either vin_uvcl_active or iin_limit_active regulation was true during the battery detection phase of a charge cycle.
-#define LTC4162_CHARGER_STATE_PRESET_BATTERY_DETECTION 2048 //!<Indicates that the LTC4162 is in the battery detection phase of a charge cycle.
-#define LTC4162_CHARGER_STATE_PRESET_EQUALIZE_CHARGE 1024 //!<Indicates that the LTC4162 is in the equalize phase of charging as requested by equalize_req.
-#define LTC4162_CHARGER_STATE_PRESET_ABSORB_CHARGE 512 //!<Indicates that the LTC4162 is in the absorb, or rapid, phase of charging.
-#define LTC4162_CHARGER_STATE_PRESET_CHARGER_SUSPENDED 256 //!<Indicates that the battery charging feature is currently suspended due to suspend_charger
-#define LTC4162_CHARGER_STATE_PRESET_CC_CV_CHARGE 64 //!<Indicates that the LTC4162 is in either the constant_current or constant_voltage phase of charging.
-#define LTC4162_CHARGER_STATE_PRESET_BAT_MISSING_FAULT 2 //!<Indicates that the battery charger is not charging because no battery was found during the battery detection test at the beginning of a charge cycle or if, at any time, the thermistor_voltage goes above 21,684 indicating an open or missing thermistor.
-#define LTC4162_CHARGER_STATE_PRESET_BAT_SHORT_FAULT 1 //!<Indicates that the battery charger is not charging because the battery was found to be shorted during the battery detection test at the beginning of a charge cycle.
+#define LTC4162_CHARGER_STATE_ENUM_BAT_DETECT_FAILED_FAULT 4096 //!<Indicates that the battery charger is not charging due to an inability to source power during the battery detection test because either vin_uvcl_active or iin_limit_active regulation was true during the battery detection phase of a charge cycle.
+#define LTC4162_CHARGER_STATE_ENUM_BATTERY_DETECTION 2048 //!<Indicates that the LTC4162 is in the battery detection phase of a charge cycle.
+#define LTC4162_CHARGER_STATE_ENUM_EQUALIZE_CHARGE 1024 //!<Indicates that the LTC4162 is in the equalize phase of charging as requested by equalize_req.
+#define LTC4162_CHARGER_STATE_ENUM_ABSORB_CHARGE 512 //!<Indicates that the LTC4162 is in the absorb, or rapid, phase of charging.
+#define LTC4162_CHARGER_STATE_ENUM_CHARGER_SUSPENDED 256 //!<Indicates that the battery charging feature is currently suspended due to suspend_charger
+#define LTC4162_CHARGER_STATE_ENUM_CC_CV_CHARGE 64 //!<Indicates that the LTC4162 is in either the constant_current or constant_voltage phase of charging.
+#define LTC4162_CHARGER_STATE_ENUM_BAT_MISSING_FAULT 2 //!<Indicates that the battery charger is not charging because no battery was found during the battery detection test at the beginning of a charge cycle or if, at any time, the thermistor_voltage goes above 21,684 indicating an open or missing thermistor.
+#define LTC4162_CHARGER_STATE_ENUM_BAT_SHORT_FAULT 1 //!<Indicates that the battery charger is not charging because the battery was found to be shorted during the battery detection test at the beginning of a charge cycle.
 //!@}
 
 /*! @defgroup LTC4162_CHARGE_STATUS_REG CHARGE_STATUS_REG
@@ -2154,13 +2154,13 @@ Generated on: 2018-01-02
 #define LTC4162_CHARGE_STATUS_MASK 0x003F
 #define LTC4162_CHARGE_STATUS_DECODE(register_data) (((register_data) & LTC4162_CHARGE_STATUS_MASK) >> LTC4162_CHARGE_STATUS_OFFSET)
 #define LTC4162_CHARGE_STATUS (LTC4162_CHARGE_STATUS_OFFSET << 12 | (LTC4162_CHARGE_STATUS_SIZE - 1) << 8 | LTC4162_CHARGE_STATUS_SUBADDR)
-#define LTC4162_CHARGE_STATUS_PRESET_ILIM_REG_ACTIVE 32 //!<May indicate that the switching regulator is currently controlling power delivery based on a safety current limit (~45mV from CSP to CSN). This should not occur under normal conditions and is likely the result of a circuit board fault. Alternately indicates that the switching regulator is in dropout (highest possible duty cycle) and is not regulating on any feedback control loop.
-#define LTC4162_CHARGE_STATUS_PRESET_THERMAL_REG_ACTIVE 16 //!<Indicates that the icharge_dac has been automatically throttled because the die_temp has reached thermal_reg_start_temp.
-#define LTC4162_CHARGE_STATUS_PRESET_VIN_UVCL_ACTIVE 8 //!<Indicates that the input voltage control loop is currently controlling power delivery to the battery based on the input_undervoltage_dac which normally targets input_undervoltage_setting. This control loop is manipulated internally when mppt_en is set.
-#define LTC4162_CHARGE_STATUS_PRESET_IIN_LIMIT_ACTIVE 4 //!<Indicates that the input current control loop is currently controlling power delivery to the battery based on iin_limit_dac which normally targets iin_limit_target.
-#define LTC4162_CHARGE_STATUS_PRESET_CONSTANT_CURRENT 2 //!<Indicates that the charge current control loop is currently controlling power delivery to the battery based on icharge_dac which normally targets charge_current_setting.
-#define LTC4162_CHARGE_STATUS_PRESET_CONSTANT_VOLTAGE 1 //!<Indicates that the charge voltage control loop is currently controlling power delivery to the battery based on vcharge_dac which normally targets vcharge_setting. This control loop is manipulated internally if en_sla_temp_comp is true.
-#define LTC4162_CHARGE_STATUS_PRESET_CHARGER_OFF 0 //!<Indicates that the charger is not currently running. Due to a logic error this state may transiently appear during normal operation. Sampling it several times is recommended.
+#define LTC4162_CHARGE_STATUS_ENUM_ILIM_REG_ACTIVE 32 //!<May indicate that the switching regulator is currently controlling power delivery based on a safety current limit (~45mV from CSP to CSN). This should not occur under normal conditions and is likely the result of a circuit board fault. Alternately indicates that the switching regulator is in dropout (highest possible duty cycle) and is not regulating on any feedback control loop.
+#define LTC4162_CHARGE_STATUS_ENUM_THERMAL_REG_ACTIVE 16 //!<Indicates that the icharge_dac has been automatically throttled because the die_temp has reached thermal_reg_start_temp.
+#define LTC4162_CHARGE_STATUS_ENUM_VIN_UVCL_ACTIVE 8 //!<Indicates that the input voltage control loop is currently controlling power delivery to the battery based on the input_undervoltage_dac which normally targets input_undervoltage_setting. This control loop is manipulated internally when mppt_en is set.
+#define LTC4162_CHARGE_STATUS_ENUM_IIN_LIMIT_ACTIVE 4 //!<Indicates that the input current control loop is currently controlling power delivery to the battery based on iin_limit_dac which normally targets iin_limit_target.
+#define LTC4162_CHARGE_STATUS_ENUM_CONSTANT_CURRENT 2 //!<Indicates that the charge current control loop is currently controlling power delivery to the battery based on icharge_dac which normally targets charge_current_setting.
+#define LTC4162_CHARGE_STATUS_ENUM_CONSTANT_VOLTAGE 1 //!<Indicates that the charge voltage control loop is currently controlling power delivery to the battery based on vcharge_dac which normally targets vcharge_setting. This control loop is manipulated internally if en_sla_temp_comp is true.
+#define LTC4162_CHARGE_STATUS_ENUM_CHARGER_OFF 0 //!<Indicates that the charger is not currently running. Due to a logic error this state may transiently appear during normal operation. Sampling it several times is recommended.
 //!@}
 
 /*! @defgroup LTC4162_LIMIT_ALERTS_REG LIMIT_ALERTS_REG
@@ -2878,7 +2878,7 @@ Generated on: 2018-01-02
  *     + @ref LTC4162_THERMAL_SHUTDOWN "THERMAL_SHUTDOWN" : Indicates that the LTC4162 is in thermal shutdown protection due to an excessively high die temperature (typically 150°C).
  *     + @ref LTC4162_VIN_OVLO "VIN_OVLO" : Indicates that input voltage shutdown protection is active due to an input voltage above its protection shut-down threshold of approximately 38.6V.
  *     + @ref LTC4162_VIN_GT_VBAT "VIN_GT_VBAT" : Indicates that the VIN pin voltage is sufficiently above the battery voltage to begin a charge cycle (typically +150mV).
- *     + @ref LTC4162_VIN_GT_4P2V "VIN_GT_4P2V" : Indicates that the VIN pin voltage is at least greater than the switching regulator under-voltage lockout level (4.2V typical)
+ *     + @ref LTC4162_VIN_GT_4P2V "VIN_GT_4P2V" : Indicates that the VIN pin voltage is at least greater than the switching regulator under-voltage lockout level (4.2V typical).
  *     + @ref LTC4162_INTVCC_GT_2P8V "INTVCC_GT_2P8V" : Indicates that the INTVCC pin voltage is greater than the telemetry system lockout level (2.8V typical).
 */
 
@@ -3022,7 +3022,7 @@ Generated on: 2018-01-02
  *  @ingroup LTC4162-SAD_register_map
  *  @brief VIN_GT_4P2V Bit Field
  *
- *  Indicates that the VIN pin voltage is at least greater than the switching regulator under-voltage lockout level (4.2V typical)
+ *  Indicates that the VIN pin voltage is at least greater than the switching regulator under-voltage lockout level (4.2V typical).
  *   - Register: @ref LTC4162_SYSTEM_STATUS_REG "SYSTEM_STATUS_REG"
  *   - CommandCode: 0x39
  *   - Size: 1
@@ -3100,7 +3100,7 @@ Generated on: 2018-01-02
 #define LTC4162_VBAT_SIZE 16
 #define LTC4162_VBAT_OFFSET 0
 #define LTC4162_VBAT_MASK 0xFFFF
-#define LTC4162_VBAT_DECODE(register_data) register_data
+#define LTC4162_VBAT_DECODE(register_data) (register_data)
 #define LTC4162_VBAT (LTC4162_VBAT_OFFSET << 12 | (LTC4162_VBAT_SIZE - 1) << 8 | LTC4162_VBAT_SUBADDR)
 //!@}
 
@@ -3141,7 +3141,7 @@ Generated on: 2018-01-02
 #define LTC4162_VIN_SIZE 16
 #define LTC4162_VIN_OFFSET 0
 #define LTC4162_VIN_MASK 0xFFFF
-#define LTC4162_VIN_DECODE(register_data) register_data
+#define LTC4162_VIN_DECODE(register_data) (register_data)
 #define LTC4162_VIN (LTC4162_VIN_OFFSET << 12 | (LTC4162_VIN_SIZE - 1) << 8 | LTC4162_VIN_SUBADDR)
 //!@}
 
@@ -3182,7 +3182,7 @@ Generated on: 2018-01-02
 #define LTC4162_VOUT_SIZE 16
 #define LTC4162_VOUT_OFFSET 0
 #define LTC4162_VOUT_MASK 0xFFFF
-#define LTC4162_VOUT_DECODE(register_data) register_data
+#define LTC4162_VOUT_DECODE(register_data) (register_data)
 #define LTC4162_VOUT (LTC4162_VOUT_OFFSET << 12 | (LTC4162_VOUT_SIZE - 1) << 8 | LTC4162_VOUT_SUBADDR)
 //!@}
 
@@ -3223,7 +3223,7 @@ Generated on: 2018-01-02
 #define LTC4162_IBAT_SIZE 16
 #define LTC4162_IBAT_OFFSET 0
 #define LTC4162_IBAT_MASK 0xFFFF
-#define LTC4162_IBAT_DECODE(register_data) register_data
+#define LTC4162_IBAT_DECODE(register_data) (register_data)
 #define LTC4162_IBAT (LTC4162_IBAT_OFFSET << 12 | (LTC4162_IBAT_SIZE - 1) << 8 | LTC4162_IBAT_SUBADDR)
 //!@}
 
@@ -3264,7 +3264,7 @@ Generated on: 2018-01-02
 #define LTC4162_IIN_SIZE 16
 #define LTC4162_IIN_OFFSET 0
 #define LTC4162_IIN_MASK 0xFFFF
-#define LTC4162_IIN_DECODE(register_data) register_data
+#define LTC4162_IIN_DECODE(register_data) (register_data)
 #define LTC4162_IIN (LTC4162_IIN_OFFSET << 12 | (LTC4162_IIN_SIZE - 1) << 8 | LTC4162_IIN_SUBADDR)
 //!@}
 
@@ -3305,7 +3305,7 @@ Generated on: 2018-01-02
 #define LTC4162_DIE_TEMP_SIZE 16
 #define LTC4162_DIE_TEMP_OFFSET 0
 #define LTC4162_DIE_TEMP_MASK 0xFFFF
-#define LTC4162_DIE_TEMP_DECODE(register_data) register_data
+#define LTC4162_DIE_TEMP_DECODE(register_data) (register_data)
 #define LTC4162_DIE_TEMP (LTC4162_DIE_TEMP_OFFSET << 12 | (LTC4162_DIE_TEMP_SIZE - 1) << 8 | LTC4162_DIE_TEMP_SUBADDR)
 //!@}
 
@@ -3346,7 +3346,7 @@ Generated on: 2018-01-02
 #define LTC4162_THERMISTOR_VOLTAGE_SIZE 16
 #define LTC4162_THERMISTOR_VOLTAGE_OFFSET 0
 #define LTC4162_THERMISTOR_VOLTAGE_MASK 0xFFFF
-#define LTC4162_THERMISTOR_VOLTAGE_DECODE(register_data) register_data
+#define LTC4162_THERMISTOR_VOLTAGE_DECODE(register_data) (register_data)
 #define LTC4162_THERMISTOR_VOLTAGE (LTC4162_THERMISTOR_VOLTAGE_OFFSET << 12 | (LTC4162_THERMISTOR_VOLTAGE_SIZE - 1) << 8 | LTC4162_THERMISTOR_VOLTAGE_SUBADDR)
 //!@}
 
@@ -3387,7 +3387,7 @@ Generated on: 2018-01-02
 #define LTC4162_BSR_SIZE 16
 #define LTC4162_BSR_OFFSET 0
 #define LTC4162_BSR_MASK 0xFFFF
-#define LTC4162_BSR_DECODE(register_data) register_data
+#define LTC4162_BSR_DECODE(register_data) (register_data)
 #define LTC4162_BSR (LTC4162_BSR_OFFSET << 12 | (LTC4162_BSR_SIZE - 1) << 8 | LTC4162_BSR_SUBADDR)
 //!@}
 
@@ -3431,15 +3431,15 @@ Generated on: 2018-01-02
 #define LTC4162_CHEM_MASK 0x0F00
 #define LTC4162_CHEM_DECODE(register_data) (((register_data) & LTC4162_CHEM_MASK) >> LTC4162_CHEM_OFFSET)
 #define LTC4162_CHEM (LTC4162_CHEM_OFFSET << 12 | (LTC4162_CHEM_SIZE - 1) << 8 | LTC4162_CHEM_SUBADDR)
-#define LTC4162_CHEM_PRESET_LTC4162_LAD 0 //!<Li-Ion I²C Adjustable Voltage
-#define LTC4162_CHEM_PRESET_LTC4162_L42 1 //!<Li-Ion 4.2V Fixed Charge
-#define LTC4162_CHEM_PRESET_LTC4162_L41 2 //!<Li-Ion 4.1V Fixed Charge
-#define LTC4162_CHEM_PRESET_LTC4162_L40 3 //!<Li-Ion 4.0V Fixed Charge
-#define LTC4162_CHEM_PRESET_LTC4162_FAD 4 //!<LiFePO4 I²C Adjustable Voltage
-#define LTC4162_CHEM_PRESET_LTC4162_FFS 5 //!<LiFePO4 3.8V Rapid Charge
-#define LTC4162_CHEM_PRESET_LTC4162_FST 6 //!<LiFePO4 3.6V Fixed Charge
-#define LTC4162_CHEM_PRESET_LTC4162_SST 8 //!<Lead Acid Fixed Voltage
-#define LTC4162_CHEM_PRESET_LTC4162_SAD 9 //!<Lead Acid I²C Adjustable Voltage
+#define LTC4162_CHEM_ENUM_LTC4162_LAD 0 //!<Li-Ion I²C Adjustable Voltage
+#define LTC4162_CHEM_ENUM_LTC4162_L42 1 //!<Li-Ion 4.2V Fixed Charge
+#define LTC4162_CHEM_ENUM_LTC4162_L41 2 //!<Li-Ion 4.1V Fixed Charge
+#define LTC4162_CHEM_ENUM_LTC4162_L40 3 //!<Li-Ion 4.0V Fixed Charge
+#define LTC4162_CHEM_ENUM_LTC4162_FAD 4 //!<LiFePO4 I²C Adjustable Voltage
+#define LTC4162_CHEM_ENUM_LTC4162_FFS 5 //!<LiFePO4 3.8V Rapid Charge
+#define LTC4162_CHEM_ENUM_LTC4162_FST 6 //!<LiFePO4 3.6V Fixed Charge
+#define LTC4162_CHEM_ENUM_LTC4162_SST 8 //!<Lead Acid Fixed Voltage
+#define LTC4162_CHEM_ENUM_LTC4162_SAD 9 //!<Lead Acid I²C Adjustable Voltage
 //!@}
 /*! @defgroup LTC4162_CELL_COUNT CELL_COUNT
  *  @ingroup LTC4162-SAD_register_map
@@ -3462,11 +3462,11 @@ Generated on: 2018-01-02
 #define LTC4162_CELL_COUNT_MASK 0x000F
 #define LTC4162_CELL_COUNT_DECODE(register_data) (((register_data) & LTC4162_CELL_COUNT_MASK) >> LTC4162_CELL_COUNT_OFFSET)
 #define LTC4162_CELL_COUNT (LTC4162_CELL_COUNT_OFFSET << 12 | (LTC4162_CELL_COUNT_SIZE - 1) << 8 | LTC4162_CELL_COUNT_SUBADDR)
-#define LTC4162_CELL_COUNT_PRESET_UNKNOWN 0
-#define LTC4162_CELL_COUNT_PRESET_6V_BATTERY 2
-#define LTC4162_CELL_COUNT_PRESET_12V_BATTERY 4
-#define LTC4162_CELL_COUNT_PRESET_18V_BATTERY 6
-#define LTC4162_CELL_COUNT_PRESET_24V_BATTERY 8
+#define LTC4162_CELL_COUNT_ENUM_UNKNOWN 0
+#define LTC4162_CELL_COUNT_ENUM_6V_BATTERY 2
+#define LTC4162_CELL_COUNT_ENUM_12V_BATTERY 4
+#define LTC4162_CELL_COUNT_ENUM_18V_BATTERY 6
+#define LTC4162_CELL_COUNT_ENUM_24V_BATTERY 8
 //!@}
 
 /*! @defgroup LTC4162_ICHARGE_DAC_REG ICHARGE_DAC_REG
@@ -3629,7 +3629,7 @@ Generated on: 2018-01-02
 #define LTC4162_VBAT_FILT_SIZE 16
 #define LTC4162_VBAT_FILT_OFFSET 0
 #define LTC4162_VBAT_FILT_MASK 0xFFFF
-#define LTC4162_VBAT_FILT_DECODE(register_data) register_data
+#define LTC4162_VBAT_FILT_DECODE(register_data) (register_data)
 #define LTC4162_VBAT_FILT (LTC4162_VBAT_FILT_OFFSET << 12 | (LTC4162_VBAT_FILT_SIZE - 1) << 8 | LTC4162_VBAT_FILT_SUBADDR)
 //!@}
 
@@ -3670,7 +3670,7 @@ Generated on: 2018-01-02
 #define LTC4162_BSR_CHARGE_CURRENT_SIZE 16
 #define LTC4162_BSR_CHARGE_CURRENT_OFFSET 0
 #define LTC4162_BSR_CHARGE_CURRENT_MASK 0xFFFF
-#define LTC4162_BSR_CHARGE_CURRENT_DECODE(register_data) register_data
+#define LTC4162_BSR_CHARGE_CURRENT_DECODE(register_data) (register_data)
 #define LTC4162_BSR_CHARGE_CURRENT (LTC4162_BSR_CHARGE_CURRENT_OFFSET << 12 | (LTC4162_BSR_CHARGE_CURRENT_SIZE - 1) << 8 | LTC4162_BSR_CHARGE_CURRENT_SUBADDR)
 //!@}
 

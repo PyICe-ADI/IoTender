@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision$
-$Date$
+$Revision: 1757 $
+$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-02
+Generated on: 2018-01-18
 */
 
 
@@ -92,7 +92,8 @@ uint8_t crc8(uint8_t data, uint8_t crc)
 
 #else
 
-static const uint8_t crc8_table[256] = {
+static const uint8_t crc8_table[256] =
+{
   0000, 0X07, 0X0E, 0X09, 0X1C, 0X1B, 0X12, 0X15,
   0X38, 0X3F, 0X36, 0X31, 0X24, 0X23, 0X2A, 0X2D,
   0X70, 0X77, 0X7E, 0X79, 0X6C, 0X6B, 0X62, 0X65,
@@ -129,7 +130,7 @@ static const uint8_t crc8_table[256] = {
 
 #define crc8(data,crc) (crc8_table[(data) ^ (crc)])
 /*
-inline uint8_t crc8(uint8_t data, uint8_t crc)
+uint8_t crc8(uint8_t data, uint8_t crc)
 {
   return crc8_table[data ^ crc];
 }
@@ -147,7 +148,7 @@ uint8_t pec_write_word(uint8_t address, uint8_t command_code, uint16_t data)
   return remainder; //Returns final byte to be sent to slave device before Stop condition.
 }
 
-inline uint8_t pec_read_word(uint8_t address, uint8_t command_code, uint16_t data)
+uint8_t pec_read_word(uint8_t address, uint8_t command_code, uint16_t data)
 {
   uint8_t remainder;
   remainder = crc8(address << 1, 0);
@@ -176,7 +177,7 @@ uint8_t pec_write_byte(uint8_t address, uint8_t command_code, uint8_t data)
   return remainder; //Returns final byte to be sent to slave device before Stop condition.
 }
 
-inline uint8_t pec_read_byte(uint8_t address, uint8_t command_code, uint8_t data)
+uint8_t pec_read_byte(uint8_t address, uint8_t command_code, uint8_t data)
 {
   uint8_t remainder;
   remainder = crc8(address << 1, 0);

@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision$
-$Date$
+$Revision: 1757 $
+$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-02
+Generated on: 2018-01-18
 */
 
 
@@ -90,64 +90,53 @@ extern "C" {
 
 #include "LTC4162-SAD_reg_defs.h"
 #include "LTC4162-SAD_formats.h"
-#include "LTC4162-SAD_pec.h"
+#include <stdlib.h>
 #include <stdint.h>
-#include <stddef.h>
+#include <assert.h>
 
   // Type declarations
-  /*! Hardware port information. Modify as needed for local hardware
-  requirements. Available to user supplied read and write functions. */
-  typedef struct
-  {
-    int file_descriptor; //!< Linux SMBus file handle
-  } port_configuration_t;
-  /*! Prototype of user supplied SMBus write_byte or write_word function. Should return 0 on success and a non-0 error code on failure. */
-  typedef int (*smbus_write_register)(uint8_t address, //!< Target IC's 7-bit SMBus address
-                                      uint8_t command_code, //!< Command code to be written to
-                                      uint16_t data, //!< Data to be written
-                                      port_configuration_t *port_configuration //!< Pointer to a user supplied port_configuration struct
+
+  /*! Incomplete declaration of struct containing any hardware-specific information to pass to read and write functions
+      Complete definition if/as appropriate where smbus_read_register and smbus_write_register function definitions are completed. */
+  struct port_configuration;
+
+  /*! Prototype of user supplied SMBus write_word function. Should return 0 on success and a non-0 error code on failure. */
+  typedef int (*smbus_write_register)(uint8_t address,              //!< Target IC's 7-bit SMBus address
+                                      uint8_t command_code,         //!< Command code to be written to
+                                      uint16_t data,                //!< Data to be written
+                                      struct port_configuration *pc //!< Pointer to additional implementation-specific port configuration struct, if required.
                                      );
-  /*! Prototype of user supplied SMBus read_byte or read_word function. Should return 0 on success and a non-0 error code on failure. */
-  typedef int (*smbus_read_register)(uint8_t address, //!< Target IC's 7-bit SMBus address
-                                     uint8_t command_code, //!< command code to be read from
-                                     uint16_t *data, //!< Pointer to data destination
-                                     port_configuration_t *port_configuration //!< Pointer to a user supplied port_configuration struct
+  /*! Prototype of user supplied SMBus read_word function. Should return 0 on success and a non-0 error code on failure. */
+  typedef int (*smbus_read_register)(uint8_t address,              //!< Target IC's 7-bit SMBus address
+                                     uint8_t command_code,         //!< command code to be read from
+                                     uint16_t *data,               //!< Pointer to data destination
+                                     struct port_configuration *pc //!< Pointer to additional implementation-specific port configuration struct, if required.
                                     );
-  typedef void *LTC4162;
+
   /*! Information required to access hardware SMBus port */
   typedef struct
   {
     uint8_t address; //!< Target IC's 7-bit SMBus address
-    smbus_read_register read_register; //!< Pointer to a user supplied smbus_read_register function
-    smbus_write_register write_register; //!< Pointer to a user supplied smbus_write_register function
-    port_configuration_t *port_configuration; //!< Pointer to a user supplied port_configuration struct
+    smbus_read_register read_register;             //!< Pointer to a user supplied smbus_read_register function
+    smbus_write_register write_register;           //!< Pointer to a user supplied smbus_write_register function
+    struct port_configuration *port_configuration; //!< Pointer to additional implementation-specific port configuration struct, if required.
   } LTC4162_chip_cfg_t;
 
   // function declarations
-  /*! Returns a pointer to a LTC4162 structure used by LTC4162_write_register and LTC4162_read_register */
-  LTC4162 LTC4162_init(LTC4162_chip_cfg_t *cfg //!< Information required to access hardware SMBus port
-                      );
-  /*! Function to modify a bit field within a register while preserving the unaddressed bit fields */
-  int LTC4162_write_register(LTC4162 chip_handle, //!< Struct returned by LTC4162_init
-                             uint16_t registerinfo, //!< Bit field name from LTC4162_regdefs.h
-                             uint16_t data //!< Data to be written
+  /*! Function to modify a bit field within a register while preserving the unaddressed bit fields. Returns 0 on success. */
+  int LTC4162_write_register(LTC4162_chip_cfg_t *chip, //!< Pointer to chip configuration struct
+                             uint16_t registerinfo,    //!< Bit field name from LTC4162_regdefs.h
+                             uint16_t data             //!< Data to be written
                             );
-  /*! Retrieves a bit field data into *data. Right shifts the addressed portion down to the 0 position */
-  int LTC4162_read_register(LTC4162 chip_handle, //!< Struct returned by LTC4162_init
-                            uint16_t registerinfo, //!< Register name from LTC4162_regdefs.h
-                            uint16_t *data //!< Pointer to the data destination
+  /*! Retrieves a bit field data into *data. Right shifts the addressed portion down to the LSB position. Returns 0 on success. */
+  int LTC4162_read_register(LTC4162_chip_cfg_t *chip, //!< Pointer to chip configuration struct
+                            uint16_t registerinfo,    //!< Register name from LTC4162_regdefs.h
+                            uint16_t *data            //!< Pointer to the data destination
                            );
-  /*! Multiple LTC4162 use.
-    Multiple LTC4162s can be used with this API. Each one must be initialized.
-    The LTC4162_init requires some memory for each LTC4162. This memory can
-    be  statically  allocated  by  defining  MAX_NUM_LTC4162_INSTANCES  to the
-    number of LTC4162s required. Alternatively it can be dynamically allocated
-    by  defining  LTC4162_USE_MALLOC.  The  default  is  to not use malloc and
-    statically allocate one LTC4162.
-  */
-#ifndef MAX_NUM_LTC4162_INSTANCES
-#define MAX_NUM_LTC4162_INSTANCES 1
-#endif
+  /*! Functions to modify LTC4162 power-on defaults. */
+  void configure_LTC4162_reg(LTC4162_chip_cfg_t *); //!< Modify settings in LTC4162_reg_config.c
+  void configure_LTC4162_bf(LTC4162_chip_cfg_t *);  //!< Modify settings in LTC4162_bf_config.c
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,7 +27,6 @@ extern "C"
 #define SOLAR_CHECK_TIMEOUT 5 TIMER_MINUTES         // Extend to 5 minutes
 #define VIN_SOLAR_DROPOUT 0.98
 
-LTC4162 ltc4162;
 uint16_t data, cell_count;
 bool solar_panel, solar_panel_timeout, input_power_detected, thermistor_present;
 os_timer_t solar_panel_timer;
@@ -35,11 +34,11 @@ char vin[10], vout[10], vbat[10], iin[10], ibat[10], die_temp[10], bsr[10], ther
 std::string value, html, charger_state;
 WiFiClient client;
 WiFiServer server(80); //Initialize the server on Port 80
-int read_register(uint8_t addr, uint8_t command_code, uint16_t *data, port_configuration_t *port_configuration);
-int write_register(uint8_t addr, uint8_t command_code, uint16_t data, port_configuration_t *port_configuration);
+int read_register(uint8_t addr, uint8_t command_code, uint16_t *data, struct port_configuration *pc);
+int write_register(uint8_t addr, uint8_t command_code, uint16_t data, struct port_configuration *pc);
 int add_table_row(std::string x, std::string y, bool send_it);
 
-LTC4162_chip_cfg_t cfg =
+LTC4162_chip_cfg_t ltc4162 =
 {
     .address            = LTC4162_ADDR_68,
     .read_register      = read_register,
@@ -54,13 +53,13 @@ void timerCallback(void *pArg)
 
 bool input_power_present()
 {
-    LTC4162_read_register(ltc4162, LTC4162_VIN_GT_VBAT, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_VIN_GT_VBAT, &data);
     return data;
 }
 
 bool telemetry_enabled()
 {
-    LTC4162_read_register(ltc4162, LTC4162_FORCE_TELEMETRY_ON, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_FORCE_TELEMETRY_ON, &data);
     return data;
 }
 
@@ -73,35 +72,34 @@ void detect_solar_panel()
 {
     float vbat, vinoc;
     uint16_t ibat1, ibat2;
-    LTC4162_write_register(ltc4162, LTC4162_MPPT_EN, false);
-    LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(36));
+    LTC4162_write_register(&ltc4162, LTC4162_MPPT_EN, false);
+    LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(36));
     delay(0.25 TIMER_SECONDS);
-    LTC4162_read_register(ltc4162, LTC4162_CELL_COUNT, &cell_count);
-    LTC4162_read_register(ltc4162, LTC4162_VBAT, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_CELL_COUNT, &cell_count);
+    LTC4162_read_register(&ltc4162, LTC4162_VBAT, &data);
     vbat = LTC4162_VBAT_SLA_FORMAT_I2R(data) * cell_count / 2;
-    LTC4162_read_register(ltc4162, LTC4162_VIN, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_VIN, &data);
     vinoc = LTC4162_VIN_FORMAT_I2R(data);
-    LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
+    LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
     delay(2 TIMER_SECONDS);                                      // Get through battery detection
     
-    LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(VIN_SOLAR_DROPOUT * vinoc));
+    LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(VIN_SOLAR_DROPOUT * vinoc));
     delay(0.25 TIMER_SECONDS);
-    LTC4162_read_register(ltc4162, LTC4162_IBAT, &ibat1);
-    LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
+    LTC4162_read_register(&ltc4162, LTC4162_IBAT, &ibat1);
+    LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
     delay(0.25 TIMER_SECONDS);
-    LTC4162_read_register(ltc4162, LTC4162_IBAT, &ibat2);
+    LTC4162_read_register(&ltc4162, LTC4162_IBAT, &ibat2);
     
     if (ibat2 > ibat1 * 1.05)
     {
         // Serial.println("Possible Solar Panel");
         solar_panel = true;
-        LTC4162_write_register(ltc4162, LTC4162_MPPT_EN, true);
+        LTC4162_write_register(&ltc4162, LTC4162_MPPT_EN, true);
     }
     else
-    {
-        // Serial.println("Low Impedance Input");
+    {   // Serial.println("Low Impedance Input");
         solar_panel = false;
-        LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
+        LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
     }
     // Serial.println("");
 }
@@ -111,7 +109,6 @@ void setup()
     pinMode(D0, INPUT_PULLUP); pinMode(D3, OUTPUT); pinMode(D4, OUTPUT); pinMode(EQUALIZE, OUTPUT); pinMode(BULK, OUTPUT); pinMode(ABSORB, OUTPUT); pinMode(D8, OUTPUT); pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(D3, LOW); digitalWrite(D4, LOW); digitalWrite(D8, LOW); digitalWrite(LED_BUILTIN, HIGH);
     Wire.begin(SDA, SCL);                                           // Make an I2C port
-    ltc4162 = LTC4162_init(&cfg);                                   // Make an LTC4162 object
   
     if (!input_power_present() and !telemetry_enabled())
         ESP8266_sleep();
@@ -119,7 +116,7 @@ void setup()
     os_timer_setfn(&solar_panel_timer, timerCallback, NULL);
     os_timer_arm(&solar_panel_timer, SOLAR_CHECK_TIMEOUT, true);    // This true means repeat
     solar_panel_timeout = true;                                     // Check for solar panel immediately
-    LTC4162_write_register(ltc4162, LTC4162_TELEMETRY_SPEED, LTC4162_TELEMETRY_SPEED_PRESET_TEL_HIGH_SPEED);
+    LTC4162_write_register(&ltc4162, LTC4162_TELEMETRY_SPEED, LTC4162_TELEMETRY_SPEED_ENUM_TEL_HIGH_SPEED);
     digitalWrite(LED_BUILTIN, LOW);                                 // Blue LED on shows input power present
         
     Serial.begin(115200);                                           // Initialize the serial port to the PC
@@ -153,51 +150,51 @@ void loop()
     }
     yield();  // or delay(0);
 
-    LTC4162_read_register(ltc4162, LTC4162_CELL_COUNT, &data);
-    if (data != LTC4162_CELL_COUNT_PRESET_UNKNOWN)
+    LTC4162_read_register(&ltc4162, LTC4162_CELL_COUNT, &data);
+    if (data != LTC4162_CELL_COUNT_ENUM_UNKNOWN)
         cell_count = data;
     //else
     //    retain last valid value of cell_count
     
-    LTC4162_read_register(ltc4162, LTC4162_VBAT, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_VBAT, &data);
     dtostrf(LTC4162_VBAT_SLA_FORMAT_I2R(data) * cell_count / 2, 5, 3, vbat);// cell_count/2 is the correction factor datasheet "N"
     
-    LTC4162_write_register(ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(17));
+    LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(17));
     
-    LTC4162_read_register(ltc4162, LTC4162_VIN, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_VIN, &data);
     dtostrf(LTC4162_VIN_FORMAT_I2R(data), 5, 3, vin);
     
-    LTC4162_read_register(ltc4162, LTC4162_VOUT, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_VOUT, &data);
     dtostrf(LTC4162_VOUT_FORMAT_I2R(data), 5, 3, vout);
     
-    LTC4162_read_register(ltc4162, LTC4162_IBAT, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_IBAT, &data);
     dtostrf(LTC4162_IBAT_FORMAT_I2R(data), 5, 3, ibat);
     
-    LTC4162_read_register(ltc4162, LTC4162_IIN, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_IIN, &data);
     dtostrf(LTC4162_IIN_FORMAT_I2R(data), 5, 3, iin);
     
-    LTC4162_read_register(ltc4162, LTC4162_DIE_TEMP, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_DIE_TEMP, &data);
     dtostrf(LTC4162_DIE_TEMP_FORMAT_I2R(data), 5, 3, die_temp);
     
-    LTC4162_read_register(ltc4162, LTC4162_THERMISTOR_VOLTAGE, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_THERMISTOR_VOLTAGE, &data);
     dtostrf(LTC4162_NTCS0402E3103FLT_I2R(data), 5, 3, thermistor_voltage);
 
-    thermistor_present = LTC4162_NTCS0402E3103FLT_I2R(data) > -45; // Missing thermistor
+    thermistor_present = data < LTC4162_NTCS0402E3103FLT_R2I(-45); // Missing thermistor, less than because NTC!
     if (thermistor_present)
-        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
+        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
     else
-        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
+        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
     
-    LTC4162_read_register(ltc4162, LTC4162_BSR, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_BSR, &data);
     dtostrf(LTC4162_BSR_FORMAT_SLA_U2R(data) * cell_count / 2 * 1000, 5, 3, bsr);
     
-    LTC4162_read_register(ltc4162, LTC4162_TABSORBTIMER, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_TABSORBTIMER, &data);
     sprintf(tabsorb_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
     
-    LTC4162_read_register(ltc4162, LTC4162_TEQUALIZETIMER, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_TEQUALIZETIMER, &data);
     sprintf(tequalize_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
        
-    LTC4162_read_register(ltc4162, LTC4162_CHARGER_STATE, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_CHARGER_STATE, &data);
     switch (data)
     {
     case 1:
@@ -205,68 +202,68 @@ void loop()
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 2:
         charger_state = "Open Battery";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 64:
         charger_state = "Float";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, HIGH);
+        digitalWrite(FLOAT, HIGH);
         break;
     case 256:
         charger_state = "Suspended";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 512:
         charger_state = "Absorb";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, HIGH);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 1024:
         charger_state = "Equalize";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, HIGH);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 2048:
         charger_state = "Bat Detection";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 4096:
         charger_state = "Bat Detect Failed";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     default:
         charger_state = "";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        // digitalWrite(FLOAT, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     }
     
-    LTC4162_write_register(ltc4162, LTC4162_THERMAL_REG_START_TEMP, LTC4162_DIE_TEMP_FORMAT_R2I(109));
-    LTC4162_write_register(ltc4162, LTC4162_THERMAL_REG_END_TEMP, LTC4162_DIE_TEMP_FORMAT_R2I(111));
+    LTC4162_write_register(&ltc4162, LTC4162_THERMAL_REG_START_TEMP, LTC4162_DIE_TEMP_FORMAT_R2I(109));
+    LTC4162_write_register(&ltc4162, LTC4162_THERMAL_REG_END_TEMP, LTC4162_DIE_TEMP_FORMAT_R2I(111));
 
     client = server.available();
     if (!client)
@@ -277,34 +274,34 @@ void loop()
     client.flush();                                                     //clear previous info in the stream
     
     if (request.indexOf("/TEL_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_FORCE_TELEMETRY_ON, true);
+        LTC4162_write_register(&ltc4162, LTC4162_FORCE_TELEMETRY_ON, true);
     if (request.indexOf("/TEL_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_FORCE_TELEMETRY_ON, false);
+        LTC4162_write_register(&ltc4162, LTC4162_FORCE_TELEMETRY_ON, false);
         
     if (request.indexOf("/BSR_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_RUN_BSR, true);
+        LTC4162_write_register(&ltc4162, LTC4162_RUN_BSR, true);
     if (request.indexOf("/BSR_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_RUN_BSR, false);
+        LTC4162_write_register(&ltc4162, LTC4162_RUN_BSR, false);
 
     if (request.indexOf("/EQ_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_EQUALIZE_REQ, true);
+        LTC4162_write_register(&ltc4162, LTC4162_EQUALIZE_REQ, true);
     if (request.indexOf("/EQ_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_EQUALIZE_REQ, false);
+        LTC4162_write_register(&ltc4162, LTC4162_EQUALIZE_REQ, false);
         
     if (request.indexOf("/ENABLE_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_SUSPEND_CHARGER, false);
+        LTC4162_write_register(&ltc4162, LTC4162_SUSPEND_CHARGER, false);
     if (request.indexOf("/ENABLE_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_SUSPEND_CHARGER, true);
+        LTC4162_write_register(&ltc4162, LTC4162_SUSPEND_CHARGER, true);
         
     if (request.indexOf("/SLA_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
+        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
     if (request.indexOf("/SLA_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
+        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
         
     if (request.indexOf("/SHIP_ON") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_ARM_SHIP_MODE, true);
+        LTC4162_write_register(&ltc4162, LTC4162_ARM_SHIP_MODE, true);
     if (request.indexOf("/SHIP_OFF") != -1)
-        LTC4162_write_register(ltc4162, LTC4162_ARM_SHIP_MODE, false);
+        LTC4162_write_register(&ltc4162, LTC4162_ARM_SHIP_MODE, false);
 
     // Serial.println("Somebody has connected :)");                    //Read what the browser has sent into a String class and print the request to the monitor
     client.print(F("HTTP/1.1 200\r\n"));
@@ -349,7 +346,7 @@ void loop()
         add_table_row("Thermistor Temp", value.assign(thermistor_voltage) + "&deg;C", true);
     add_table_row("Battery Impedance", value.assign(bsr) + "m&Omega;", true);
     add_table_row("Charger State", charger_state, true);
-    LTC4162_read_register(ltc4162, LTC4162_CHARGE_STATUS, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_CHARGE_STATUS, &data);
     switch (data)
     {
         case 1:
@@ -376,18 +373,18 @@ void loop()
     else
         add_table_row("Power Source", "None", true);
     
-    LTC4162_read_register(ltc4162, LTC4162_EN_CHG, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_EN_CHG, &data);
     add_table_row("Charger Enabled", data ? "<font color=\"blue\"><b><i>True</i></b></font>" : "<font color=\"red\"><b><i>False</i></b></font>", true);
 
     client.print(F("</table>"));   
     
-    LTC4162_read_register(ltc4162, LTC4162_FORCE_TELEMETRY_ON, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_FORCE_TELEMETRY_ON, &data);
     if (data)
         client.print(F("<button class=\"button_green\" onclick=location.href=\"/TEL_OFF\"; style=\"position:absolute; left:0%\">TELEMETRY</button>"));
     else
         client.print(F("<button class=\"button_red\" onclick=location.href=\"/TEL_ON\"; style=\"position:absolute; left:0%\">TELEMETRY</button>"));
 
-    LTC4162_read_register(ltc4162, LTC4162_RUN_BSR, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_RUN_BSR, &data);
     if (data)
         client.print(F("<button class=\"button_green\" onclick=location.href=\"/BSR_OFF\"; style=\"position:absolute; right:0%\">GET B.S.R.</button>"));
     else
@@ -395,13 +392,13 @@ void loop()
 
     client.print(F("<br><br>"));
         
-    LTC4162_read_register(ltc4162, LTC4162_EQUALIZE_REQ, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_EQUALIZE_REQ, &data);
     if (data)
         client.print(F("<button class=\"button_green\" onclick=location.href=\"/EQ_OFF\"; style=\"position:absolute; left:0%\">EQUALIZE</button>"));
     else
         client.print(F("<button class=\"button_red\" onclick=location.href=\"/EQ_ON\"; style=\"position:absolute; left:0%\">EQUALIZE</button>"));
 
-    LTC4162_read_register(ltc4162, LTC4162_SUSPEND_CHARGER, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_SUSPEND_CHARGER, &data);
     if (data)
         client.print(F("<button class=\"button_red\" onclick=location.href=\"/ENABLE_ON\"; style=\"position:absolute; right:0%\">ENABLE</button>"));
     else
@@ -409,13 +406,13 @@ void loop()
 
     client.print(F("<br><br>"));
         
-    LTC4162_read_register(ltc4162, LTC4162_EN_SLA_TEMP_COMP, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, &data);
     if (data)
         client.print(F("<button class=\"button_green\" onclick=location.href=\"/SLA_OFF\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
     else
         client.print(F("<button class=\"button_red\" onclick=location.href=\"/SLA_ON\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
 
-    LTC4162_read_register(ltc4162, LTC4162_ARM_SHIP_MODE, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_ARM_SHIP_MODE, &data);
     if (data)
         client.print(F("<button class=\"button_green\" onclick=location.href=\"/SHIP_OFF\"; style=\"position:absolute; right:0%\">SHIP MODE</button>"));
     else
@@ -430,13 +427,13 @@ void loop()
  * Prototype: virtual uint16_t LT_SMBus::readWord(uint8_t address, uint8_t command);
  * Function should return 0 on success and a non-0 error code on failure. The API functions will return your error code.
  */
-int read_register(uint8_t address,                           //!< IC's SMBus address (7-bit format).
+int read_register(uint8_t address,                          //!< IC's SMBus address (7-bit format).
                   uint8_t command_code,                     //!< IC's Register address (SMBus command code) for read.
                   uint16_t *data,                           //!< Memory location to store whole register data read from communication interface.
-                  port_configuration_t *port_configuration  //!< Any necessary communication interface configuration information, such as a file descriptor or control register location.
+                  struct port_configuration *pc             //!< Pointer to additional implementation-specific port configuration struct, if required.
                  )
 {
-    (void)port_configuration;                                   //Unneeded parameter in this implementation.
+    (void)pc;                                   //Unneeded parameter in this implementation.
     uint8_t the_byte;
     Wire.beginTransmission((int)address);
     Wire.write(command_code);
@@ -469,10 +466,10 @@ int read_register(uint8_t address,                           //!< IC's SMBus add
 int write_register(uint8_t address,                             //!< IC's SMBus address (7-bit format).
                    uint8_t command_code,                        //!< IC's Register address (SMBus command code) for write.
                    uint16_t data,                               //!< Whole register data to be written to communication interface.
-                   port_configuration_t *port_configuration     //!< Any necessary communication interface configuration information, such as a file descriptor or control register location.
+                   struct port_configuration *pc                //!< Pointer to additional implementation-specific port configuration struct, if required.
                   )
 {
-    (void)port_configuration;                                   //Unneeded parameter in this implementation.
+    (void)pc;                                   //Unneeded parameter in this implementation.
     Wire.beginTransmission((int)address);
     Wire.write(command_code);
     Wire.write(data & 0xff);

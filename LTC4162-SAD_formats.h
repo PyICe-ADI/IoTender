@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision$
-$Date$
+$Revision: 1757 $
+$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,25 +60,23 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-02
+Generated on: 2018-01-18
 */
 
 
 /*! @file
  *  @ingroup LTC4162-SAD
- *  @brief LTC4162-SAD library file defining data conversion macros and constants used
- *  by LTC4162-SAD.c
+ *  @brief LTC4162-SAD library file defining data conversion macros and constants for the LTC4162-SAD.
  *
  *
  *  This file contains constants and real to integer/unsigned macros which can be used
- *  to represent real-world values in the source code, with automatic compile-time 
- *  conversion to LTC4162 internal register scaling.
- *
- *  Passing runtime variables to these macros should be avoided as it will likely result
- *  in runtime calculations accompanied by associated processor loading and memory usage.
+ *  to represent real values in the source code, with automatic compile-time
+ *  conversion to LTC4162 integer register scaling.
+ *  Passing runtime variables to these macros should be avoided in embedded systems, as it
+ *  results in runtime floating point calculations.
  *
  *  This file also contains integer/unsigned to real macros which can be used to convert from
- *  internal format to real world values for display/debug. Invoking these macros results in
+ *  internal integer format to real values for display/debug. Invoking these macros results in
  *  runtime floating point calculations with associated high memory and execution penalty in
  *  small embedded systems.
  * @{
@@ -88,9 +86,9 @@ Generated on: 2018-01-02
 #define LTC4162_FORMATS_H_
 
 /*! @name Format Definitions
- *  Constants used by the macros below to convert from real world to LTC4162 referenced numbers.
+ *  Constants used by the macros below to convert between real and LTC4162 integer scaling.
  */
-/*! @name Constants used in real world conversion macros below */
+/*! @name Constants used in real/integer conversion macros below */
 #define LTC4162_RSNSI 0.010
 #define LTC4162_RSNSB 0.010
 #define LTC4162_RNTCBIAS 10000.0
@@ -125,7 +123,7 @@ Generated on: 2018-01-02
 #define LTC4162_R142 356.45
 #define LTC4162_R150 302.36
 
-/*! @name Use the macros below to convert from real world to LTC4162 referenced numbers. */
+/*! @name Use the macros below to convert between real and LTC4162 integer scaling. */
 /*! Convert from amperes to the iinlim setting.
  *   - Used with Bit Fields: iin_limit_target, iin_limit_dac, target_ilim.
  */
@@ -297,7 +295,7 @@ Generated on: 2018-01-02
 )
 
 /*! @name Private macros for use by formats above. */
-#define __LTC4162_ROUND__(x) ((x) > 0 ? x + 0.5 : x - 0.5)
+#define __LTC4162_ROUND__(x) ((x) > 0 ? (x) + 0.5 : (x) - 0.5)
 #define __LTC4162_ILINE__(x0,x1,y0,y1,x) __LTC4162_ROUND__((y0) + ((double)((y1) - (y0))/(double)((x1) - (x0))) * ((x) - (x0)))
 #define __LTC4162_RLINE__(x0,x1,y0,y1,x) ((y0) + (double)((y1) - (y0))/(double)((x1) - (x0)) * ((x) - (x0)))
 #define __LTC4162_BETWEEN_INCLUSIVE__(x0,x1,x) (((x) > (x0) && (x) < (x1)) || (x) == (x0) || (x) == (x1) ? 1 : 0)
