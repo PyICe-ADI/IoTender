@@ -3,9 +3,9 @@
  * Steve Martin 11/22/2017
  */
 #include <stdint.h>
-#include "LTC4162-SAD.h"
-#include "LTC4162-SAD_formats.h"
-#include "LTC4162-SAD_pec.h"
+#include "LTC4162-LAD.h"
+#include "LTC4162-LAD_formats.h"
+#include "LTC4162-LAD_pec.h"
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 extern "C"
@@ -30,7 +30,7 @@ extern "C"
 uint16_t data, cell_count;
 bool solar_panel, solar_panel_timeout, input_power_detected, thermistor_present;
 os_timer_t solar_panel_timer;
-char vin[10], vout[10], vbat[10], iin[10], ibat[10], die_temp[10], bsr[10], thermistor_voltage[10], tabsorb_timer[15], tequalize_timer[15], temp[15];
+char vin[10], vout[10], vbat[10], iin[10], ibat[10], die_temp[10], bsr[10], thermistor_voltage[10], tcharge_timer[15], tcv_timer[15], temp[15];
 std::string value, html, charger_state;
 WiFiClient client;
 WiFiServer server(80); //Initialize the server on Port 80
@@ -77,7 +77,7 @@ void detect_solar_panel()
     delay(0.25 TIMER_SECONDS);
     LTC4162_read_register(&ltc4162, LTC4162_CELL_COUNT, &cell_count);
     LTC4162_read_register(&ltc4162, LTC4162_VBAT, &data);
-    vbat = LTC4162_VBAT_SLA_FORMAT_I2R(data) * cell_count / 2;
+    vbat = LTC4162_VBAT_FORMAT_I2R(data) * cell_count / 2;
     LTC4162_read_register(&ltc4162, LTC4162_VIN, &data);
     vinoc = LTC4162_VIN_FORMAT_I2R(data);
     LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(vbat + 2));
@@ -144,7 +144,7 @@ void loop()
         
     if (solar_panel_timeout and input_power_detected)
     {
-        Serial.println("Checking for solar panel...");
+        //Serial.println("Checking for solar panel...");
         detect_solar_panel();
         solar_panel_timeout = false;
     }
@@ -157,7 +157,7 @@ void loop()
     //    retain last valid value of cell_count
     
     LTC4162_read_register(&ltc4162, LTC4162_VBAT, &data);
-    dtostrf(LTC4162_VBAT_SLA_FORMAT_I2R(data) * cell_count / 2, 5, 3, vbat);// cell_count/2 is the correction factor datasheet "N"
+    dtostrf(LTC4162_VBAT_FORMAT_I2R(data) * cell_count, 5, 3, vbat);
     
     LTC4162_write_register(&ltc4162, LTC4162_INPUT_UNDERVOLTAGE_SETTING, LTC4162_VIN_UVCL_R2U(17));
     
@@ -180,19 +180,19 @@ void loop()
     dtostrf(LTC4162_NTCS0402E3103FLT_I2R(data), 5, 3, thermistor_voltage);
 
     thermistor_present = data < LTC4162_NTCS0402E3103FLT_R2I(-45); // Missing thermistor, less than because NTC!
-    if (thermistor_present)
-        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
-    else
-        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
+    // if (thermistor_present)
+        // LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
+    // else
+        // LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
     
     LTC4162_read_register(&ltc4162, LTC4162_BSR, &data);
-    dtostrf(LTC4162_BSR_FORMAT_SLA_U2R(data) * cell_count / 2 * 1000, 5, 3, bsr);
+    dtostrf(LTC4162_BSR_FORMAT_U2R(data) * cell_count * 1000, 5, 3, bsr);
     
-    LTC4162_read_register(&ltc4162, LTC4162_TABSORBTIMER, &data);
-    sprintf(tabsorb_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
+    LTC4162_read_register(&ltc4162, LTC4162_TCHARGETIMER, &data);
+    sprintf(tcharge_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
     
-    LTC4162_read_register(&ltc4162, LTC4162_TEQUALIZETIMER, &data);
-    sprintf(tequalize_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
+    LTC4162_read_register(&ltc4162, LTC4162_TCVTIMER, &data);
+    sprintf(tcv_timer, "%dh %dm %ds", data/3600, data%3600/60, data%60);
        
     LTC4162_read_register(&ltc4162, LTC4162_CHARGER_STATE, &data);
     switch (data)
@@ -211,32 +211,53 @@ void loop()
         digitalWrite(EQUALIZE, LOW);
         digitalWrite(FLOAT, LOW);
         break;
+    case 4:
+        charger_state = "Max Time Fault";
+        digitalWrite(BULK, LOW);
+        digitalWrite(ABSORB, LOW);
+        digitalWrite(EQUALIZE, LOW);
+        digitalWrite(FLOAT, LOW);
+        break;
+    case 8:
+        charger_state = "C/X Termination";
+        digitalWrite(BULK, LOW);
+        digitalWrite(ABSORB, LOW);
+        digitalWrite(EQUALIZE, LOW);
+        digitalWrite(FLOAT, LOW);
+        break;
+    case 16:
+        charger_state = "Timer Termination";
+        digitalWrite(BULK, LOW);
+        digitalWrite(ABSORB, LOW);
+        digitalWrite(EQUALIZE, LOW);
+        digitalWrite(FLOAT, LOW);
+        break;
+    case 32:
+        charger_state = "NTC Pause";
+        digitalWrite(BULK, LOW);
+        digitalWrite(ABSORB, LOW);
+        digitalWrite(EQUALIZE, LOW);
+        digitalWrite(FLOAT, LOW);
+        break;
     case 64:
-        charger_state = "Float";
+        charger_state = "CC/CV Charge";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
         digitalWrite(FLOAT, HIGH);
+        break;
+    case 128:
+        charger_state = "Precharge";
+        digitalWrite(BULK, LOW);
+        digitalWrite(ABSORB, LOW);
+        digitalWrite(EQUALIZE, LOW);
+        digitalWrite(FLOAT, LOW);
         break;
     case 256:
         charger_state = "Suspended";
         digitalWrite(BULK, LOW);
         digitalWrite(ABSORB, LOW);
         digitalWrite(EQUALIZE, LOW);
-        digitalWrite(FLOAT, LOW);
-        break;
-    case 512:
-        charger_state = "Absorb";
-        digitalWrite(BULK, LOW);
-        digitalWrite(ABSORB, HIGH);
-        digitalWrite(EQUALIZE, LOW);
-        digitalWrite(FLOAT, LOW);
-        break;
-    case 1024:
-        charger_state = "Equalize";
-        digitalWrite(BULK, LOW);
-        digitalWrite(ABSORB, LOW);
-        digitalWrite(EQUALIZE, HIGH);
         digitalWrite(FLOAT, LOW);
         break;
     case 2048:
@@ -283,20 +304,20 @@ void loop()
     if (request.indexOf("/BSR_OFF") != -1)
         LTC4162_write_register(&ltc4162, LTC4162_RUN_BSR, false);
 
-    if (request.indexOf("/EQ_ON") != -1)
-        LTC4162_write_register(&ltc4162, LTC4162_EQUALIZE_REQ, true);
-    if (request.indexOf("/EQ_OFF") != -1)
-        LTC4162_write_register(&ltc4162, LTC4162_EQUALIZE_REQ, false);
+    if (request.indexOf("/CX_ON") != -1)
+        LTC4162_write_register(&ltc4162, LTC4162_EN_C_OVER_X_TERM, true);
+    if (request.indexOf("/CX_OFF") != -1)
+        LTC4162_write_register(&ltc4162, LTC4162_EN_C_OVER_X_TERM, false);
         
     if (request.indexOf("/ENABLE_ON") != -1)
         LTC4162_write_register(&ltc4162, LTC4162_SUSPEND_CHARGER, false);
     if (request.indexOf("/ENABLE_OFF") != -1)
         LTC4162_write_register(&ltc4162, LTC4162_SUSPEND_CHARGER, true);
         
-    if (request.indexOf("/SLA_ON") != -1)
-        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, true);
-    if (request.indexOf("/SLA_OFF") != -1)
-        LTC4162_write_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, false);
+    if (request.indexOf("/JEITA_ON") != -1)
+        LTC4162_write_register(&ltc4162, LTC4162_EN_JEITA, true);
+    if (request.indexOf("/JEITA_OFF") != -1)
+        LTC4162_write_register(&ltc4162, LTC4162_EN_JEITA, false);
         
     if (request.indexOf("/SHIP_ON") != -1)
         LTC4162_write_register(&ltc4162, LTC4162_ARM_SHIP_MODE, true);
@@ -349,6 +370,8 @@ void loop()
     LTC4162_read_register(&ltc4162, LTC4162_CHARGE_STATUS, &data);
     switch (data)
     {
+        case 0:
+            value = "Charger Off";          break;
         case 1:
             value = "Constant Voltage";     break;
         case 2:
@@ -365,8 +388,8 @@ void loop()
             value = "None";                 break;
     }
     add_table_row("Regulation Loop", value, true);
-    add_table_row("Absorption Time", value.assign(tabsorb_timer, 11), true);
-    add_table_row("Equalization Time", value.assign(tequalize_timer, 11), true);
+    add_table_row("Charge Time", value.assign(tcharge_timer, 11), true);
+    add_table_row("C.V. Time", value.assign(tcv_timer, 11), true);
     
     if (input_power_present())
         add_table_row("Power Source",  solar_panel ? "Solar Panel" : "Wall Adapter", true);
@@ -392,11 +415,11 @@ void loop()
 
     client.print(F("<br><br>"));
         
-    LTC4162_read_register(&ltc4162, LTC4162_EQUALIZE_REQ, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_EN_C_OVER_X_TERM, &data);
     if (data)
-        client.print(F("<button class=\"button_green\" onclick=location.href=\"/EQ_OFF\"; style=\"position:absolute; left:0%\">EQUALIZE</button>"));
+        client.print(F("<button class=\"button_green\" onclick=location.href=\"/CX_OFF\"; style=\"position:absolute; left:0%\">C/X TERM</button>"));
     else
-        client.print(F("<button class=\"button_red\" onclick=location.href=\"/EQ_ON\"; style=\"position:absolute; left:0%\">EQUALIZE</button>"));
+        client.print(F("<button class=\"button_red\" onclick=location.href=\"/CX_ON\"; style=\"position:absolute; left:0%\">C/X TERM</button>"));
 
     LTC4162_read_register(&ltc4162, LTC4162_SUSPEND_CHARGER, &data);
     if (data)
@@ -406,11 +429,11 @@ void loop()
 
     client.print(F("<br><br>"));
         
-    LTC4162_read_register(&ltc4162, LTC4162_EN_SLA_TEMP_COMP, &data);
+    LTC4162_read_register(&ltc4162, LTC4162_EN_JEITA, &data);
     if (data)
-        client.print(F("<button class=\"button_green\" onclick=location.href=\"/SLA_OFF\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
+        client.print(F("<button class=\"button_green\" onclick=location.href=\"/JEITA_OFF\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
     else
-        client.print(F("<button class=\"button_red\" onclick=location.href=\"/SLA_ON\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
+        client.print(F("<button class=\"button_red\" onclick=location.href=\"/JEITA_ON\"; style=\"position:absolute; left:0%\">TEMP COMP</button>"));
 
     LTC4162_read_register(&ltc4162, LTC4162_ARM_SHIP_MODE, &data);
     if (data)

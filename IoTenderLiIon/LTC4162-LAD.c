@@ -2,20 +2,20 @@
 LTC4162: Advanced Synchronous Switching Battery Charger and PowerPath Manager
 
 @verbatim
-The LTC®4162-S is an advanced synchronous switching battery charger and
+The LTC®4162-L is an advanced synchronous switching battery charger and
 PowerPath manager that seamlessly manages power distribution from input sources
 such as wall adapters, backplanes, solar panels, etc. and a rechargeable
 battery. A high resolution telemetry system provides extensive information on
 circuit voltages, currents, battery resistance and temperatures which can all be
 read back over the serial interface. The serial interface can also be used to
-configure many of the charging parameters as well as numerous system status
-alerts. The LTC4162-S can charge from one to four 6V Lead-Acid batteries or one
-to two 12V Lead-Acid batteries with up to 3.2A of charge current. The power path
+configure many of the charging parameters including termination algorithms as
+well as numerous system status alerts. The LTC4162-L can charge Lithium-Ion cell
+stacks as high as eight cells with up to 3.2A of charge current. The power path
 topology decouples the output voltage from the battery allowing a portable
-product to start up under very low battery voltage conditions. The LTC4162-S is
-available in an I²C adjustable version as well a fixed voltage version both with
-and without MPPT enabled by default. The LTC4162-S is available in the 28-pin
-4mm × 5mm × 0.75mm QFN surface mount package.
+product to start up under very low battery voltage conditions. The LTC4162-L is
+available in an I²C adjustable version as well as 4.0V, 4.1V and 4.2V fixed
+voltage versions all with and without MPPT enabled by default. The LTC4162-L is
+available in the 28-pin 4mm × 5mm × 0.75mm QFN surface mount package.
 @endverbatim
 
 http://www.linear.com/product/LTC4162
@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision: 1757 $
-$Date: 2018-01-18 17:38:13 -0500 (Thu, 18 Jan 2018) $
+$Revision: 1758 $
+$Date: 2018-02-15 14:28:32 -0500 (Thu, 15 Feb 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,15 +60,15 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-18
+Generated on: 2018-01-19
 */
 
 
-//! @defgroup LTC4162-SAD LTC4162: Advanced Synchronous Switching Battery Charger and PowerPath Manager
+//! @defgroup LTC4162-LAD LTC4162: Advanced Synchronous Switching Battery Charger and PowerPath Manager
 
 /*! @file
- *  @ingroup LTC4162-SAD
- *  @brief LTC4162-SAD lightweight, hardware agnostic, embeddable C Communication
+ *  @ingroup LTC4162-LAD
+ *  @brief LTC4162-LAD lightweight, hardware agnostic, embeddable C Communication
  *  Library.
  *
  * Communication  is  bit-field based as well as whole-register based. This library
@@ -93,7 +93,7 @@ Generated on: 2018-01-18
  * factory at 408-432-1900 or www.linear.com for further information.
  */
 
-#include "LTC4162-SAD.h"
+#include "LTC4162-LAD.h"
 
 static inline uint8_t get_size(uint16_t registerinfo)
 {
