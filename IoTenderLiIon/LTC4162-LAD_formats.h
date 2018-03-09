@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision: 1758 $
-$Date: 2018-02-15 14:28:32 -0500 (Thu, 15 Feb 2018) $
+$Revision$
+$Date: 2018-03-09 17:54:10 -0500 (Fri, 09 Mar 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-19
+Generated on: 2018-03-09
 */
 
 
@@ -94,7 +94,7 @@ Generated on: 2018-01-19
 #define LTC4162_RNTCBIAS 10000.0
 #define LTC4162_RNTCSER 0.0
 #define LTC4162_VINDIV 30.0
-#define LTC4162_VOUTDIV 30.0
+#define LTC4162_VOUTDIV (30.0 * 1.00232)
 #define LTC4162_BATDIV 3.5
 #define LTC4162_AVPROG 37.5
 #define LTC4162_AVCLPROG 37.5

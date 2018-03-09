@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision: 1758 $
-$Date: 2018-02-15 14:28:32 -0500 (Thu, 15 Feb 2018) $
+$Revision$
+$Date: 2018-03-09 17:54:10 -0500 (Fri, 09 Mar 2018) $
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-19
+Generated on: 2018-03-09
 */
 
 
@@ -81,8 +81,9 @@ Generated on: 2018-01-19
 
 uint8_t crc8(uint8_t data, uint8_t crc)
 {
+  uint8_t i;
   crc = crc ^ data;
-  for (uint8_t i = 0; i < 8; i++)
+  for (i = 0; i < 8; i++)
   {
     if (crc & 0x80) crc = (crc << 1) ^  0x07;
     else crc = crc << 1;

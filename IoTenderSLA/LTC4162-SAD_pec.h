@@ -23,8 +23,8 @@ http://www.linear.com/product/LTC4162
 http://www.linear.com/product/LTC4162#demoboards
 
 REVISION HISTORY
-$Revision: 1758 $
-$Date: 2018-02-15 14:28:32 -0500 (Thu, 15 Feb 2018) $
+$Revision$
+$Date$
 
 Copyright (c) 2018, Linear Technology Corp.(LTC)
 All rights reserved.
@@ -60,7 +60,7 @@ to   the   open-source   community.   Please,  visit  http://www.arduino.cc  and
 http://store.arduino.cc,  and consider  a purchase  that  will  help fund  their
 ongoing work.
 
-Generated on: 2018-01-19
+Generated on: 2018-03-09
 */
 
 
