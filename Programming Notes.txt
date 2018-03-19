@@ -24,3 +24,7 @@ https://www.mjt.me.uk/posts/esp8266-gpio-deep-sleep-and-reset/
 See below for PROGMEM stuff
 https://gist.github.com/sticilface/e54016485fcccd10950e93ddcd4461a3
 static const char xyz[] PROGMEM = "This is a string stored in flash";
+
+Put this line in the additional board files line
+
+http://arduino.esp8266.com/versions/2.3.0/package_esp8266com_index.json
